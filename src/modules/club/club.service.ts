@@ -6,6 +6,7 @@ import { Club } from './entities/club.entity';
 import { Repository } from 'typeorm';
 import { PlayerService } from '../player/player.service';
 import { CoachService } from '../coach/coach.service';
+import { PaginationDto } from './dto/pagination.dto';
 
 
 @Injectable()
@@ -34,6 +35,15 @@ export class ClubService {
   findAll() {
     return this.clubRepository.find({});
   }
+
+  /*async getPlayersByClubId(paginationDto: PaginationDto) {
+    const { limit = 0, offset = 0 } = paginationDto;
+
+    return this.clubRepository.find({
+      take: limit,
+      skip: offset,
+    })
+  }*/
 
   async findOne(id: number) {
     try {

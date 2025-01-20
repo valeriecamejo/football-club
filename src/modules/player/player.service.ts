@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
-import { Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 import { Player } from './entities/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Club } from '../club/entities/club.entity';
@@ -91,6 +91,21 @@ export class PlayerService {
 
     }
   }
+
+  async getPlayers(club_id: number, name: string, page: number, limit: number): Promise<Player[]> {
+    const skip = (page - 1) * limit;
+
+    const whereConditions = { club_id };
+    if (name) whereConditions['name'] = ILike(`%${name}%`);
+
+    const players = await this.playerRepository.find({
+        where: whereConditions,
+        skip,
+        take: limit,
+    });
+
+    return players;
+}
 
   update(id: number, updatePlayerDto: UpdatePlayerDto) {
     return `This action updates a #${id} player`;

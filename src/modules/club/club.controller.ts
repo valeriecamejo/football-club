@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
 import { ClubService } from './club.service';
 import { CreateClubDto } from './dto/create-club.dto';
 import { UpdateClubDto } from './dto/update-club.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Controller('club')
 export class ClubController {
@@ -21,6 +22,11 @@ export class ClubController {
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.clubService.findOne(id);
   }
+
+  /*@Get(':clubId/players')
+  getPlayersByClubId(@Query() paginationDto:PaginationDto) {
+    return this.clubService.getPlayersByClubId(paginationDto);
+  }*/
 
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() updateClubDto: UpdateClubDto) {

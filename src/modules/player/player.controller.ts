@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
@@ -25,6 +25,16 @@ export class PlayerController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.playerService.findOne(id);
+  }
+
+  @Get()
+  async getPlayers(
+      @Query('club_id') club_id: number,
+      @Query('name') name: string,
+      @Query('page') page: number = 1,
+      @Query('limit') limit: number = 10
+  ) {
+      return this.playerService.getPlayers(club_id, name, page, limit);
   }
 
   @Patch(':id')

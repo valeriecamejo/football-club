@@ -83,6 +83,8 @@ export class CoachService {
     await this.clubRepository.update(clubId, { remainingBudget });
     await this.coachRepository.update(coachId, { club_id: null });
 
+    delete coachDB.club_id;
+
     return coachDB;
   }
 
