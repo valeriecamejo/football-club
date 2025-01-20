@@ -14,10 +14,10 @@ export class Club {
     })
     name: string;
 
-    @Column('numeric')
+    @Column('float')
     budget: number;
 
-    @Column('numeric')
+    @Column('float')
     remainingBudget?: number; 
 
     @OneToMany(() => Player, player => player.club)

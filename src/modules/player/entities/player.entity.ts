@@ -7,13 +7,10 @@ export class Player {
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column('text', {
-        unique: true,
-        nullable: true,
-    })
+    @Column('text', { unique: true })
     name: string;
 
-    @Column('numeric', { nullable: true })
+    @Column('float', { nullable: true })
     salary?: number;
 
     @ManyToOne(() => Club, club => club.players)
@@ -21,7 +18,6 @@ export class Player {
     club: Club;
 
     @Column('int', {
-        unique: true,
         nullable: true,
     })
     club_id?: number;

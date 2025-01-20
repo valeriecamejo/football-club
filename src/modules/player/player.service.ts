@@ -37,9 +37,9 @@ export class PlayerService {
     const { club_id, salary } = createPlayerDto;
 
     const playerDB = await this.playerRepository.findOne({ where: { id: playerId } });
-    if (!playerDB) {
-      throw new NotFoundException(`Player with id ${playerId} not found`);
-    }
+    
+    if (!playerDB) throw new NotFoundException(`Player with id ${playerId} not found`);
+    if (playerDB.club_id !== null) throw new BadRequestException(`Player ${playerDB.name} with id: ${playerId} is already associated with a club`);
 
     const club = await this.clubRepository.findOne({ where: { id: club_id } });
     if (!club) {

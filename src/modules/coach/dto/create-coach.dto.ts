@@ -4,10 +4,10 @@ export class CreateCoachDto {
     @IsNotEmpty()
     name: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
     @Min(1,  { message: 'Salary cannot be less than 0' })
-    salary: number;
+    salary?: number;
 
     @IsOptional()
     @IsNumber()
