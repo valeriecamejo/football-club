@@ -63,37 +63,27 @@ export class CoachService {
   }
 
   /*
-    - Validar que el coach es válido y si pertenece a un club
+    - Validar que el coach es válido y si pertenece a un club ***
     - Eliminar la relación del coach con el club
     - Sumar salario del coah al remainingBudget del club
     - Actualizar coach
   */
   async deleteCoachFromClub(coachId: number) {
-    return "test";
-    /*const coachDB = await this.coachRepository.findOne({ where: { id: coachId } });
 
+    const coachDB = await this.coachRepository.findOne({ where: { id: coachId } });
+
+    const clubId = coachDB.club_id;
     if (!coachDB) throw new NotFoundException(`Coach with id ${coachId} not found`);
-    if (coachDB.club_id !== null) throw new BadRequestException(`Coach with id:${coachId} associated with another club`);
+    if (clubId == null) throw new BadRequestException(`Coach with id: ${coachId} is not associated with a club`);
 
-    const club = await this.clubRepository.findOne({ where: { id: club_id } });
-    if (!club) {
-      throw new NotFoundException(`Club with id ${club_id} not found`);
-    }
+    const club = await this.clubRepository.findOne({ where: { id: clubId } });
 
-    if (club.remainingBudget < salary) {
-      throw new BadRequestException(
-        `Insufficient budget in the club to hire the coach. Required: ${salary}, available: ${club.remainingBudget}`
-      );
-    }
+    const remainingBudget = club.remainingBudget + coachDB.salary;
 
-    club.remainingBudget -= salary;
-    await this.clubRepository.update(club_id, { remainingBudget: club.remainingBudget });
+    await this.clubRepository.update(clubId, { remainingBudget });
+    await this.coachRepository.update(coachId, { club_id: null });
 
-    coachDB.salary = salary;
-    coachDB.club_id = club_id;
-    await this.coachRepository.update(coachId, { salary, club_id });
-
-    return coachDB;*/
+    return coachDB;
   }
 
   async getCoachesByClubId(club_id: number): Promise<Coach[]> {
@@ -110,7 +100,7 @@ export class CoachService {
 
   async findAll() {
     const coaches = await this.coachRepository.find({});
-    return this.getCoach(coaches);
+    return this.cleanCoachResponse(coaches);
   }
 
   findOne(id: number) {
@@ -125,7 +115,7 @@ export class CoachService {
     return `This action removes a #${coachId} coach ${clubId} `;
   }
 
-  async getCoach(coaches) {
+  async cleanCoachResponse(coaches) {
     const filteredCoaches = coaches.map(coach => {
       const filteredCoach = {};
 

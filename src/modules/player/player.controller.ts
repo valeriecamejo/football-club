@@ -32,8 +32,8 @@ export class PlayerController {
     return this.playerService.update(+id, updatePlayerDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.playerService.remove(+id);
+  @Delete(':playerId/club')
+  deleteCoachFromClub(@Param('playerId', ParseIntPipe) playerId: number) {
+    return this.playerService.deletePlayerFromClub(playerId);
   }
 }

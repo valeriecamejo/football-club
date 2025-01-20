@@ -64,7 +64,7 @@ export class PlayerService {
 
   async findAll() {
     const players = await this.playerRepository.find({});
-    return this.getPlayers(players);
+    return this.cleanPlayersResponse(players);
   }
 
   async findOne(id: number) {
@@ -96,8 +96,24 @@ export class PlayerService {
     return `This action updates a #${id} player`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} player`;
+  async deletePlayerFromClub(playerId: number) {
+
+    const playerDB = await this.playerRepository.findOne({ where: { id: playerId } });
+
+    const clubId = playerDB.club_id;
+    if (!playerDB) throw new NotFoundException(`Player with id ${playerId} not found`);
+    if (clubId == null) throw new BadRequestException(`Coach with id: ${playerId} is not associated with a club`);
+
+    const club = await this.clubRepository.findOne({ where: { id: clubId } });
+
+    const remainingBudget = club.remainingBudget + playerDB.salary;
+
+    await this.clubRepository.update(clubId, { remainingBudget });
+    await this.playerRepository.update(playerId, { club_id: null });
+    
+    delete playerDB.club_id;
+
+    return playerDB;
   }
 
   private handleDBExceptions(error: any) {
@@ -107,7 +123,7 @@ export class PlayerService {
     throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 
-  async getPlayers(players) {
+  async cleanPlayersResponse(players) {
     const filteredPlayers = players.map(player => {
       const filteredPlayer = {};
 
