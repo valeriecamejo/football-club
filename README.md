@@ -18,3 +18,5 @@ docker-compose up -d
 ```
 npm run start:dev
 ```
+
+6. RUN_SEEDS=true npm run start

@@ -55,11 +55,15 @@ export class PlayerService {
     club.remainingBudget -= salary;
     await this.clubRepository.update(club_id, { remainingBudget: club.remainingBudget });
 
-    playerDB.salary = salary;
-    playerDB.club_id = club_id;
-    await this.playerRepository.update(playerId, { salary, club_id });
+    const dataToSave = { salary, club_id, club_name: club.name }
+
+    await this.playerRepository.update(playerId, dataToSave);
     await this.emailService.sendEmail(playerDB.email, 'added', playerDB.name, club.name);
 
+    playerDB.salary = salary;
+    playerDB.club_id = club_id;
+    playerDB.club_name = club.name;
+    
     return playerDB;
   }
 

@@ -24,4 +24,9 @@ export class Coach {
     nullable: true,
   })
   club_id?: number;
+
+  @Column('text', {
+    nullable: true,
+  })
+  club_name?: string;
 }
