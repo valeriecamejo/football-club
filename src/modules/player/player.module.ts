@@ -4,10 +4,11 @@ import { PlayerController } from './player.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Player } from './entities/player.entity';
 import { Club } from '../club/entities/club.entity';
+import { EmailService } from 'src/common/email/email.service';
 
 @Module({
   controllers: [PlayerController],
-  providers: [PlayerService],
+  providers: [PlayerService, EmailService],
   imports: [
     TypeOrmModule.forFeature([Player, Club])
   ]

@@ -1,10 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Player } from './entities/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Club } from '../club/entities/club.entity';
+import { EmailService } from 'src/common/email/email.service';
+import { handleDBExceptions } from 'src/common/utils/db-exception.util';
 
 @Injectable()
 export class PlayerService {
@@ -16,20 +18,18 @@ export class PlayerService {
     private readonly playerRepository: Repository<Player>,
     @InjectRepository(Club)
     private readonly clubRepository: Repository<Club>,
-  ) {
-
-  }
+    private readonly emailService: EmailService
+  ) { }
 
   async create(createPlayerDto: CreatePlayerDto) {
-
     try {
       const player = this.playerRepository.create(createPlayerDto);
       await this.playerRepository.save(player);
-      const { id, name } = player;
+      const { id, name, email } = player;
 
-      return { id, name };
+      return { id, name, email };
     } catch (error) {
-      this.handleDBExceptions(error);
+      handleDBExceptions(error, this.logger);
     }
   }
 
@@ -37,9 +37,9 @@ export class PlayerService {
     const { club_id, salary } = createPlayerDto;
 
     const playerDB = await this.playerRepository.findOne({ where: { id: playerId } });
-    if (!playerDB) {
-      throw new NotFoundException(`Player with id ${playerId} not found`);
-    }
+
+    if (!playerDB) throw new NotFoundException(`Player with id ${playerId} not found`);
+    if (playerDB.club_id !== null) throw new BadRequestException(`Player ${playerDB.name} is already associated in a club`);
 
     const club = await this.clubRepository.findOne({ where: { id: club_id } });
     if (!club) {
@@ -55,16 +55,21 @@ export class PlayerService {
     club.remainingBudget -= salary;
     await this.clubRepository.update(club_id, { remainingBudget: club.remainingBudget });
 
+    const dataToSave = { salary, club_id, club_name: club.name }
+
+    await this.playerRepository.update(playerId, dataToSave);
+    await this.emailService.sendEmail(playerDB.email, 'added', playerDB.name, club.name);
+
     playerDB.salary = salary;
     playerDB.club_id = club_id;
-    await this.playerRepository.update(playerId, { salary, club_id });
+    playerDB.club_name = club.name;
 
     return playerDB;
   }
 
   async findAll() {
     const players = await this.playerRepository.find({});
-    return this.getPlayers(players);
+    return this.cleanPlayersResponse(players);
   }
 
   async findOne(id: number) {
@@ -92,22 +97,42 @@ export class PlayerService {
     }
   }
 
-  update(id: number, updatePlayerDto: UpdatePlayerDto) {
-    return `This action updates a #${id} player`;
+  async getPlayersByFilter(club_id: number, name: string, page: number, limit: number): Promise<Player[]> {
+    const skip = (page - 1) * limit;
+
+    const whereConditions = { club_id };
+    if (name) whereConditions['name'] = ILike(`%${name}%`);
+
+    const players = await this.playerRepository.find({
+      where: whereConditions,
+      skip,
+      take: limit,
+    });
+
+    return players;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} player`;
+  async deletePlayerFromClub(playerId: number) {
+    const playerDB = await this.playerRepository.findOne({ where: { id: playerId } });
+
+    const clubId = playerDB.club_id;
+    if (!playerDB) throw new NotFoundException(`Player with id ${playerId} not found`);
+    if (clubId == null) throw new BadRequestException(`Coach with id: ${playerId} is not associated with a club`);
+
+    const club = await this.clubRepository.findOne({ where: { id: clubId } });
+
+    const remainingBudget = club.remainingBudget + playerDB.salary;
+
+    await this.clubRepository.update(clubId, { remainingBudget });
+    await this.playerRepository.update(playerId, { club_id: null, club_name: null });
+    await this.emailService.sendEmail(playerDB.email, 'deleted', playerDB.name, club.name);
+
+    delete playerDB.club_id;
+
+    return playerDB;
   }
 
-  private handleDBExceptions(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs');
-  }
-
-  async getPlayers(players) {
+  async cleanPlayersResponse(players) {
     const filteredPlayers = players.map(player => {
       const filteredPlayer = {};
 

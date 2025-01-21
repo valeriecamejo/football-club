@@ -5,16 +5,22 @@
 # Football Club
 
 1. Clonar proyecto
+
 2. Instalar dependencias
 ```
 npm install
 ```
+
 3. Clonar el archivo ```.env.template```, renombrarlo a ```.env``` y cambiar las variables de entorno
+
 4. Levantar base de datos
 ```
 docker-compose up -d
 ```
+
 5. Levantar en local:
 ```
 npm run start:dev
 ```
+
+6. RUN_SEEDS=true npm run start

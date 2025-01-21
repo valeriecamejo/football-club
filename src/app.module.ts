@@ -4,6 +4,7 @@ import { PlayerModule } from './modules/player/player.module';
 import { CoachModule } from './modules/coach/coach.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SeedsModule } from './database/seeds/seeds.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ClubModule,
     PlayerModule,
     CoachModule,
+    SeedsModule,
 
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -21,7 +23,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
       synchronize: true,
-    })
+    }),
   ],
 })
 export class AppModule { }

@@ -5,7 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Club } from './entities/club.entity';
 import { Repository } from 'typeorm';
 import { PlayerService } from '../player/player.service';
-
+import { CoachService } from '../coach/coach.service';
+import { handleDBExceptions } from 'src/common/utils/db-exception.util';
 
 @Injectable()
 export class ClubService {
@@ -15,7 +16,8 @@ export class ClubService {
   constructor(
     @InjectRepository(Club)
     private readonly clubRepository: Repository<Club>,
-    private readonly playerService: PlayerService, 
+    private readonly playerService: PlayerService,
+    private readonly coachService: CoachService,
   ) { }
 
   async create(createClubDto: CreateClubDto) {
@@ -25,7 +27,7 @@ export class ClubService {
       await this.clubRepository.save(club);
       return club;
     } catch (error) {
-      this.handleDBExceptions(error);
+      handleDBExceptions(error, this.logger);
     }
   }
 
@@ -48,38 +50,48 @@ export class ClubService {
 
   async update(id: number, updateClubDto: UpdateClubDto) {
     const { budget } = updateClubDto;
-    const club = await this.findOne(id);
-    if (club.remainingBudget < budget) {
-      throw new BadRequestException(
-        `El nuevo presupuesto que se desea asociar es menor al monto total del pago de los
-        jugadores y entrenadores. Nuevo presupuesto: ${budget}, Ttotal de los salarios del club: ${club.remainingBudget}`)
+
+    let club;
+    let players;
+    let coaches;
+    try {
+      club = await this.findOne(id);
+
+      players = await this.playerService.getPlayersByClubId(id);
+      coaches = await this.coachService.getCoachesByClubId(id);
+    } catch (error) {
+      throw new NotFoundException(
+        `No information could be obtained from players or coaches associated with the club id ${id}.`
+      );
     }
 
-    const players = await this.playerService.getPlayersByClubId(id);
-    let toatlPlayers = 0;
-    players.map(player => {
-      toatlPlayers += player.salary;
-    })
-    
+    let totalSalaryPlayersByClub = 0;
+    players.forEach(player => {
+      totalSalaryPlayersByClub += Number(player.salary);
+    });
+
+    let totalSalaryCoachesByClub = 0;
+    coaches.forEach(coach => {
+      totalSalaryCoachesByClub += Number(coach.salary);
+    });
+
+    const totalBudgetByClub = totalSalaryPlayersByClub + totalSalaryCoachesByClub;
+
+    if (totalBudgetByClub > budget) {
+      throw new BadRequestException(
+        `The new budget is less than the total amount of club's salaries. Budget: ${budget}, Salaries: ${totalBudgetByClub}.`
+      );
+    }
+
     try {
       club.budget = budget;
-      club.remainingBudget = budget - toatlPlayers;
+      club.remainingBudget = budget - totalBudgetByClub;
+
       await this.clubRepository.update(id, { budget, remainingBudget: club.remainingBudget });
+
       return club;
     } catch (error) {
-      this.handleDBExceptions(error);
+      handleDBExceptions(error, this.logger);
     }
-  }
-
-  async remove(id: number) {
-    const club = await this.findOne(id);
-    await this.clubRepository.remove(club)
-  }
-
-  private handleDBExceptions(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 }
