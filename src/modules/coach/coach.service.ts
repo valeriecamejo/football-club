@@ -6,6 +6,7 @@ import { Coach } from './entities/coach.entity';
 import { Repository } from 'typeorm';
 import { Club } from '../club/entities/club.entity';
 import { EmailService } from 'src/common/email/email.service';
+import { handleDBExceptions } from 'src/common/utils/db-exception.util';
 
 @Injectable()
 export class CoachService {
@@ -31,7 +32,7 @@ export class CoachService {
 
       return { id, name };
     } catch (error) {
-      this.handleDBExceptions(error);
+      handleDBExceptions(error, this.logger);
     }
   }
 
@@ -127,12 +128,5 @@ export class CoachService {
     });
 
     return filteredCoaches;
-  }
-
-  private handleDBExceptions(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 }

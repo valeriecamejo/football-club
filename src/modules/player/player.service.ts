@@ -6,6 +6,7 @@ import { Player } from './entities/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Club } from '../club/entities/club.entity';
 import { EmailService } from 'src/common/email/email.service';
+import { handleDBExceptions } from 'src/common/utils/db-exception.util';
 
 @Injectable()
 export class PlayerService {
@@ -31,7 +32,7 @@ export class PlayerService {
 
       return { id, name, email };
     } catch (error) {
-      this.handleDBExceptions(error);
+      handleDBExceptions(error, this.logger);
     }
   }
 
@@ -134,13 +135,6 @@ export class PlayerService {
     delete playerDB.club_id;
 
     return playerDB;
-  }
-
-  private handleDBExceptions(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs');
   }
 
   async cleanPlayersResponse(players) {

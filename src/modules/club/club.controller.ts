@@ -26,9 +26,4 @@ export class ClubController {
   update(@Param('id', ParseIntPipe) id: number, @Body() updateClubDto: UpdateClubDto) {
     return this.clubService.update(id, updateClubDto);
   }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.clubService.remove(+id);
-  }
 }
