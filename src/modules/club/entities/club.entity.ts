@@ -1,7 +1,6 @@
 import { Coach } from "src/modules/coach/entities/coach.entity";
 import { Player } from "src/modules/player/entities/player.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { UpdateClubDto } from "../dto/update-club.dto";
 
 @Entity()
 export class Club {

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
+import { GetPlayersQueryDto } from './dto/get-players-query.dto';
 
 @Controller('player')
 export class PlayerController {
@@ -28,13 +29,12 @@ export class PlayerController {
   }
 
   @Get()
+  @UsePipes(new ValidationPipe())
   async getPlayers(
-      @Query('club_id') club_id: number,
-      @Query('name') name: string,
-      @Query('page') page: number = 1,
-      @Query('limit') limit: number = 10
+    @Query() query: GetPlayersQueryDto
   ) {
-      return this.playerService.getPlayers(club_id, name, page, limit);
+    const { club_id, name, page, limit } = query;
+    return this.playerService.getPlayers(club_id, name, page, limit);
   }
 
   @Patch(':id')

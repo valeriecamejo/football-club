@@ -6,7 +6,6 @@ import { Club } from './entities/club.entity';
 import { Repository } from 'typeorm';
 import { PlayerService } from '../player/player.service';
 import { CoachService } from '../coach/coach.service';
-import { PaginationDto } from './dto/pagination.dto';
 
 
 @Injectable()
