@@ -6,6 +6,7 @@ import { GetPlayersQueryDto } from './dto/get-players-query.dto';
 
 @Controller('player')
 export class PlayerController {
+
   constructor(private readonly playerService: PlayerService) { }
 
   @Patch(':playerId/club')
@@ -17,11 +18,6 @@ export class PlayerController {
   async createPlayer(@Body() createPlayerDto: CreatePlayerDto) {
     return this.playerService.create(createPlayerDto);
   }
-
-  /*@Get()
-  findAll() {
-    return this.playerService.findAll();
-  }*/
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -35,11 +31,6 @@ export class PlayerController {
   ) {
     const { club_id, name, page, limit } = query;
     return this.playerService.getPlayers(club_id, name, page, limit);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePlayerDto: UpdatePlayerDto) {
-    return this.playerService.update(+id, updatePlayerDto);
   }
 
   @Delete(':playerId/club')

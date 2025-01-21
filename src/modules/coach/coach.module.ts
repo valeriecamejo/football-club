@@ -13,4 +13,4 @@ import { EmailService } from 'src/common/email/email.service';
     TypeOrmModule.forFeature([Coach, Club])
   ]
 })
-export class CoachModule {}
+export class CoachModule { }

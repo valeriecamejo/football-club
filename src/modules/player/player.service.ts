@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
-import { ILike, Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Player } from './entities/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Club } from '../club/entities/club.entity';
@@ -19,12 +19,9 @@ export class PlayerService {
     @InjectRepository(Club)
     private readonly clubRepository: Repository<Club>,
     private readonly emailService: EmailService
-  ) {
-
-  }
+  ) { }
 
   async create(createPlayerDto: CreatePlayerDto) {
-
     try {
       const player = this.playerRepository.create(createPlayerDto);
       await this.playerRepository.save(player);
@@ -40,7 +37,7 @@ export class PlayerService {
     const { club_id, salary } = createPlayerDto;
 
     const playerDB = await this.playerRepository.findOne({ where: { id: playerId } });
-    
+
     if (!playerDB) throw new NotFoundException(`Player with id ${playerId} not found`);
     if (playerDB.club_id !== null) throw new BadRequestException(`Player ${playerDB.name} is already associated in a club`);
 
@@ -62,7 +59,7 @@ export class PlayerService {
     playerDB.club_id = club_id;
     await this.playerRepository.update(playerId, { salary, club_id });
     await this.emailService.sendEmail(playerDB.email, 'added', playerDB.name, club.name);
-    
+
     return playerDB;
   }
 
@@ -97,27 +94,22 @@ export class PlayerService {
   }
 
   async getPlayers(club_id: number, name: string, page: number, limit: number): Promise<Player[]> {
-    if(!club_id) return this.findAll();
+    if (!club_id) return this.findAll();
     const skip = (page - 1) * limit;
 
     const whereConditions = { club_id };
     if (name) whereConditions['name'] = ILike(`%${name}%`);
 
     const players = await this.playerRepository.find({
-        where: whereConditions,
-        skip,
-        take: limit,
+      where: whereConditions,
+      skip,
+      take: limit,
     });
 
     return players;
-}
-
-  update(id: number, updatePlayerDto: UpdatePlayerDto) {
-    return `This action updates a #${id} player`;
   }
 
   async deletePlayerFromClub(playerId: number) {
-
     const playerDB = await this.playerRepository.findOne({ where: { id: playerId } });
 
     const clubId = playerDB.club_id;

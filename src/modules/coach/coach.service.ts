@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { UpdateCoachDto } from './dto/update-coach.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,12 +19,9 @@ export class CoachService {
     @InjectRepository(Club)
     private readonly clubRepository: Repository<Club>,
     private readonly emailService: EmailService
-  ) {
-
-  }
+  ) { }
 
   async create(createCoachDto: CreateCoachDto) {
-
     try {
       const coach = this.coachRepository.create(createCoachDto);
       await this.coachRepository.save(coach);
@@ -56,6 +53,7 @@ export class CoachService {
     }
 
     club.remainingBudget -= salary;
+  
     await this.clubRepository.update(club_id, { remainingBudget: club.remainingBudget });
 
     coachDB.salary = salary;
@@ -66,7 +64,6 @@ export class CoachService {
   }
 
   async deleteCoachFromClub(coachId: number) {
-
     const coachDB = await this.coachRepository.findOne({ where: { id: coachId } });
 
     const clubId = coachDB.club_id;
@@ -102,19 +99,7 @@ export class CoachService {
     return this.cleanCoachResponse(coaches);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} coach`;
-  }
-
-  update(id: number, updateCoachDto: UpdateCoachDto) {
-    return `This action updates a #${id} coach`;
-  }
-
-  remove(coachId: number, clubId: number) {
-    return `This action removes a #${coachId} coach ${clubId} `;
-  }
-
-  async cleanCoachResponse(coaches) {
+  private async cleanCoachResponse(coaches) {
     const filteredCoaches = coaches.map(coach => {
       const filteredCoach = {};
 

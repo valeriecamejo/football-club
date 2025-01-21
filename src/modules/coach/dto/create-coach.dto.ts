@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, Matches, MaxLength, Min } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, MaxLength, Min } from 'class-validator';
 
 export class CreateCoachDto {
     @IsNotEmpty()

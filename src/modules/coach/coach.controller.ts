@@ -5,6 +5,7 @@ import { UpdateCoachDto } from './dto/update-coach.dto';
 
 @Controller('coach')
 export class CoachController {
+
   constructor(private readonly coachService: CoachService) { }
 
   @Patch(':coachId/club')
@@ -22,16 +23,6 @@ export class CoachController {
   @Get()
   findAll() {
     return this.coachService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.coachService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCoachDto: UpdateCoachDto) {
-    return this.coachService.update(+id, updateCoachDto);
   }
 
   @Delete(':coachId/club')
