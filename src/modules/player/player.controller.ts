@@ -24,13 +24,14 @@ export class PlayerController {
     return this.playerService.findOne(id);
   }
 
-  @Get()
+  @Get('club/:clubId')
   @UsePipes(new ValidationPipe())
-  async getPlayers(
+  async getPlayersByFilter(
+    @Param('clubId', ParseIntPipe) clubId: number,
     @Query() query: GetPlayersQueryDto
   ) {
-    const { club_id, name, page, limit } = query;
-    return this.playerService.getPlayers(club_id, name, page, limit);
+    const { name, page, limit } = query;
+    return this.playerService.getPlayersByFilter(clubId, name, page, limit);
   }
 
   @Delete(':playerId/club')

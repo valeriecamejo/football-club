@@ -97,8 +97,7 @@ export class PlayerService {
     }
   }
 
-  async getPlayers(club_id: number, name: string, page: number, limit: number): Promise<Player[]> {
-    if (!club_id) return this.findAll();
+  async getPlayersByFilter(club_id: number, name: string, page: number, limit: number): Promise<Player[]> {
     const skip = (page - 1) * limit;
 
     const whereConditions = { club_id };

@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import { IsOptional, IsInt, Min, Max, IsString, IsNotEmpty } from 'class-validator';
 
 export class GetPlayersQueryDto {
+
     @IsOptional()
     @IsInt()
     @Min(1, { message: 'club_id must be greater than 0 and valid value ' })
