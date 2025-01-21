@@ -63,7 +63,7 @@ export class PlayerService {
     playerDB.salary = salary;
     playerDB.club_id = club_id;
     playerDB.club_name = club.name;
-    
+
     return playerDB;
   }
 
@@ -125,7 +125,7 @@ export class PlayerService {
     const remainingBudget = club.remainingBudget + playerDB.salary;
 
     await this.clubRepository.update(clubId, { remainingBudget });
-    await this.playerRepository.update(playerId, { club_id: null });
+    await this.playerRepository.update(playerId, { club_id: null, club_name: null });
     await this.emailService.sendEmail(playerDB.email, 'deleted', playerDB.name, club.name);
 
     delete playerDB.club_id;

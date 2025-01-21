@@ -78,7 +78,7 @@ export class CoachService {
     const remainingBudget = club.remainingBudget + coachDB.salary;
 
     await this.clubRepository.update(clubId, { remainingBudget });
-    await this.coachRepository.update(coachId, { club_id: null });
+    await this.coachRepository.update(coachId, { club_id: null, club_name: null });
     await this.emailService.sendEmail(coachDB.email, 'deleted', coachDB.name, club.name);
     delete coachDB.club_id;
 
