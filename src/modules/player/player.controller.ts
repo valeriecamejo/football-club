@@ -24,10 +24,10 @@ export class PlayerController {
     return this.playerService.create(createPlayerDto);
   }
 
-  @ApiOperation({ summary: 'Get a player by Id' })
+  @ApiOperation({ summary: 'Get all players' })
   @ApiResponse({ status: 200, description: 'Players', type: [CreatePlayerDto] })
   @Get()
-  findAll(@Param('id', ParseIntPipe) id: number) {
+  findAll() {
     return this.playerService.findAll();
   }
 
