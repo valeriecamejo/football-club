@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Coach } from './entities/coach.entity';
 import { Repository } from 'typeorm';
 import { Club } from '../club/entities/club.entity';
+import { EmailService } from 'src/common/email/email.service';
 
 @Injectable()
 export class CoachService {
@@ -16,6 +17,7 @@ export class CoachService {
     private readonly coachRepository: Repository<Coach>,
     @InjectRepository(Club)
     private readonly clubRepository: Repository<Club>,
+    private readonly emailService: EmailService
   ) {
 
   }
@@ -39,7 +41,7 @@ export class CoachService {
     const coachDB = await this.coachRepository.findOne({ where: { id: coachId } });
 
     if (!coachDB) throw new NotFoundException(`Coach with id ${coachId} not found`);
-    if (coachDB.club_id !== null) throw new BadRequestException(`Coach with id:${coachId} associated with another club`);
+    if (coachDB.club_id !== null) throw new BadRequestException(`Coach ${coachDB.name} is already associated in a club`);
 
     const club = await this.clubRepository.findOne({ where: { id: club_id } });
     if (!club) {
@@ -58,16 +60,10 @@ export class CoachService {
     coachDB.salary = salary;
     coachDB.club_id = club_id;
     await this.coachRepository.update(coachId, { salary, club_id });
-
+    await this.emailService.sendEmail(coachDB.email, 'added', coachDB.name, club.name);
     return coachDB;
   }
 
-  /*
-    - Validar que el coach es válido y si pertenece a un club ***
-    - Eliminar la relación del coach con el club
-    - Sumar salario del coah al remainingBudget del club
-    - Actualizar coach
-  */
   async deleteCoachFromClub(coachId: number) {
 
     const coachDB = await this.coachRepository.findOne({ where: { id: coachId } });
@@ -82,7 +78,7 @@ export class CoachService {
 
     await this.clubRepository.update(clubId, { remainingBudget });
     await this.coachRepository.update(coachId, { club_id: null });
-
+    await this.emailService.sendEmail(coachDB.email, 'deleted', coachDB.name, club.name);
     delete coachDB.club_id;
 
     return coachDB;

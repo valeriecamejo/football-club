@@ -5,6 +5,7 @@ import { ILike, Like, Repository } from 'typeorm';
 import { Player } from './entities/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Club } from '../club/entities/club.entity';
+import { EmailService } from 'src/common/email/email.service';
 
 @Injectable()
 export class PlayerService {
@@ -16,6 +17,7 @@ export class PlayerService {
     private readonly playerRepository: Repository<Player>,
     @InjectRepository(Club)
     private readonly clubRepository: Repository<Club>,
+    private readonly emailService: EmailService
   ) {
 
   }
@@ -25,9 +27,9 @@ export class PlayerService {
     try {
       const player = this.playerRepository.create(createPlayerDto);
       await this.playerRepository.save(player);
-      const { id, name } = player;
+      const { id, name, email } = player;
 
-      return { id, name };
+      return { id, name, email };
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -39,7 +41,7 @@ export class PlayerService {
     const playerDB = await this.playerRepository.findOne({ where: { id: playerId } });
     
     if (!playerDB) throw new NotFoundException(`Player with id ${playerId} not found`);
-    if (playerDB.club_id !== null) throw new BadRequestException(`Player ${playerDB.name} with id: ${playerId} is already associated with a club`);
+    if (playerDB.club_id !== null) throw new BadRequestException(`Player ${playerDB.name} is already associated in a club`);
 
     const club = await this.clubRepository.findOne({ where: { id: club_id } });
     if (!club) {
@@ -58,7 +60,8 @@ export class PlayerService {
     playerDB.salary = salary;
     playerDB.club_id = club_id;
     await this.playerRepository.update(playerId, { salary, club_id });
-
+    await this.emailService.sendEmail(playerDB.email, 'added', playerDB.name, club.name);
+    
     return playerDB;
   }
 
@@ -93,6 +96,7 @@ export class PlayerService {
   }
 
   async getPlayers(club_id: number, name: string, page: number, limit: number): Promise<Player[]> {
+    if(!club_id) return this.findAll();
     const skip = (page - 1) * limit;
 
     const whereConditions = { club_id };
@@ -125,7 +129,8 @@ export class PlayerService {
 
     await this.clubRepository.update(clubId, { remainingBudget });
     await this.playerRepository.update(playerId, { club_id: null });
-    
+    await this.emailService.sendEmail(playerDB.email, 'deleted', playerDB.name, club.name);
+
     delete playerDB.club_id;
 
     return playerDB;

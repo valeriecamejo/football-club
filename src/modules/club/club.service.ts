@@ -36,15 +36,6 @@ export class ClubService {
     return this.clubRepository.find({});
   }
 
-  /*async getPlayersByClubId(paginationDto: PaginationDto) {
-    const { limit = 0, offset = 0 } = paginationDto;
-
-    return this.clubRepository.find({
-      take: limit,
-      skip: offset,
-    })
-  }*/
-
   async findOne(id: number) {
     try {
       const club = await this.clubRepository.findOneBy({ id });

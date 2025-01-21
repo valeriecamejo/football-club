@@ -13,6 +13,9 @@ export class Coach {
     @Column('float', { nullable: true })
     salary?: number;
 
+    @Column('varchar', { length: 255 })
+    email: string;
+
     @ManyToOne(() => Club, club => club.coaches)
     @JoinColumn({ name: 'club_id' })
     club: Club;

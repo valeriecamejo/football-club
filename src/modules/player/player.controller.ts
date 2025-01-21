@@ -17,10 +17,10 @@ export class PlayerController {
     return this.playerService.create(createPlayerDto);
   }
 
-  @Get()
+  /*@Get()
   findAll() {
     return this.playerService.findAll();
-  }
+  }*/
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {

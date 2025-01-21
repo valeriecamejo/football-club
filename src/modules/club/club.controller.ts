@@ -23,11 +23,6 @@ export class ClubController {
     return this.clubService.findOne(id);
   }
 
-  /*@Get(':clubId/players')
-  getPlayersByClubId(@Query() paginationDto:PaginationDto) {
-    return this.clubService.getPlayersByClubId(paginationDto);
-  }*/
-
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() updateClubDto: UpdateClubDto) {
     return this.clubService.update(id, updateClubDto);
