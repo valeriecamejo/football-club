@@ -30,14 +30,13 @@ async function bootstrap() {
     })
   );
 
-  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Football Club API Documentation')
     .setDescription('This is the API documentation for club, player and coach management.')
     .setVersion('1.0')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);  // Crear el documento Swagger
+  const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT ?? 3000);

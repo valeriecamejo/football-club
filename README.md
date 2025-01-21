@@ -19,8 +19,12 @@ docker-compose up -d
 ```
 
 5. Levantar en local:
+Si es la primera vez que ejecutas el proyecto, deberás correr los seeds y levantar el proyecto con el siguiente comando:
+```
+RUN_SEEDS=true npm run start:dev
+```
+
+Si ya tienes la base de datos poblada, deberás ejecutar lo siguiente:
 ```
 npm run start:dev
 ```
-
-6. RUN_SEEDS=true npm run start

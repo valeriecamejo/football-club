@@ -128,6 +128,7 @@ export class PlayerService {
     await this.emailService.sendEmail(playerDB.email, 'deleted', playerDB.name, club.name);
 
     delete playerDB.club_id;
+    delete playerDB.club_name
 
     return playerDB;
   }
