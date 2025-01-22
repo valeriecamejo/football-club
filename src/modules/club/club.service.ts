@@ -6,7 +6,7 @@ import { Club } from './entities/club.entity';
 import { Repository } from 'typeorm';
 import { PlayerService } from '../player/player.service';
 import { CoachService } from '../coach/coach.service';
-import { handleDBExceptions } from 'src/common/utils/db-exception.util';
+import { handleDBExceptions } from '../../common/utils/db-exception.util';
 
 @Injectable()
 export class ClubService {
@@ -32,7 +32,12 @@ export class ClubService {
   }
 
   findAll() {
-    return this.clubRepository.find({});
+    try {
+      return this.clubRepository.find({});
+    } catch (error) {
+      throw new Error('Error searching all clubs');
+    }
+    
   }
 
   async findOne(id: number) {

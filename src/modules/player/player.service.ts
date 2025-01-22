@@ -5,8 +5,8 @@ import { ILike, Repository } from 'typeorm';
 import { Player } from './entities/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Club } from '../club/entities/club.entity';
-import { EmailService } from 'src/common/email/email.service';
-import { handleDBExceptions } from 'src/common/utils/db-exception.util';
+import { EmailService } from '../../common/email/email.service';
+import { handleDBExceptions } from '../../common/utils/db-exception.util';
 
 @Injectable()
 export class PlayerService {
@@ -93,7 +93,7 @@ export class PlayerService {
 
       return players;
     } catch (error) {
-
+      throw new Error('Error searching players by clubId');
     }
   }
 
@@ -115,9 +115,9 @@ export class PlayerService {
   async deletePlayerFromClub(playerId: number) {
     const playerDB = await this.playerRepository.findOne({ where: { id: playerId } });
 
-    const clubId = playerDB.club_id;
     if (!playerDB) throw new NotFoundException(`Player with id ${playerId} not found`);
-    if (clubId == null) throw new BadRequestException(`Coach with id: ${playerId} is not associated with a club`);
+    const clubId = playerDB.club_id;
+    if (clubId == null) throw new BadRequestException(`Player with id: ${playerId} is not associated with a club`);
 
     const club = await this.clubRepository.findOne({ where: { id: clubId } });
 

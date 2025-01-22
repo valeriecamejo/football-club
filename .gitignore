@@ -17,6 +17,7 @@ lerna-debug.log*
 .DS_Store
 
 # Tests
+src/coverage/
 /coverage
 /.nyc_output
 
@@ -30,6 +31,7 @@ lerna-debug.log*
 *.sublime-workspace
 
 # IDE - VSCode
+.vscode/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
