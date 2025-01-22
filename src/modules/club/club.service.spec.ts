@@ -5,7 +5,7 @@ import { PlayerService } from "../player/player.service"
 import { Club } from "./entities/club.entity"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { BadRequestException, NotFoundException } from "@nestjs/common"
+import { BadRequestException, InternalServerErrorException, NotFoundException } from "@nestjs/common"
 
 describe("clubService", () => {
   let service: ClubService;
@@ -23,11 +23,11 @@ describe("clubService", () => {
   };
 
   const mockCoachService = {
-    getCoachesByClubId: jest.fn().mockResolvedValue(true),
+    getCoachesByClubId: jest.fn().mockResolvedValue({}),
   };
 
   const mockPlayerService = {
-    getPlayersByClubId: jest.fn().mockResolvedValue(true),
+    getPlayersByClubId: jest.fn().mockResolvedValue({}),
   };
 
 
@@ -148,7 +148,9 @@ describe("clubService", () => {
 
       mockClubRepository.findOneBy.mockRejectedValue(new Error('Unexpected error'));
 
-      await expect(service.findOne(clubId)).rejects.toThrowError
+      await expect(service.findOne(clubId)).rejects.toThrowError(
+        new InternalServerErrorException(`Unexpected error searching for club ${clubId}`)
+      );
     });
   });
 
@@ -157,7 +159,7 @@ describe("clubService", () => {
       const clubId = 1;
       const updateClubDto = { budget: 2000000 };
       const club = { id: clubId, name: 'FC Barcelona', budget: 1000000, remainingBudget: 1000000 };
-      const players = [{ salary: 100000 }];
+      const players = [{ salary: 300000 }];
       const coaches = [{ salary: 50000 }];
   
       mockClubRepository.findOneBy.mockResolvedValue(club);
@@ -166,12 +168,14 @@ describe("clubService", () => {
       mockClubRepository.update.mockResolvedValue({ ...club, ...updateClubDto });
   
       const result = await service.update(clubId, updateClubDto);
+
+      const expectedRemainingBudget = updateClubDto.budget - (players[0].salary + coaches[0].salary);
   
       expect(result.budget).toBe(2000000);
-      expect(result.remainingBudget).toBe(1800000);
-      expect(mockClubRepository.update).toHaveBeenCalledWith(clubId, { budget: 2000000, remainingBudget: 1800000 });
+      expect(result.remainingBudget).toBe(expectedRemainingBudget);
+      expect(mockClubRepository.update).toHaveBeenCalledWith(clubId, { budget: 2000000, remainingBudget: expectedRemainingBudget });
     });
-  
+
     test('should throw NotFoundException if players or coaches cannot be fetched', async () => {
       const clubId = 1;
       const updateClubDto = { budget: 2000000 };
@@ -179,13 +183,13 @@ describe("clubService", () => {
       mockClubRepository.findOneBy.mockResolvedValue({ id: clubId });
       mockPlayerService.getPlayersByClubId.mockRejectedValue(new Error('Error fetching players'));
       mockCoachService.getCoachesByClubId.mockResolvedValue([]);
-  
+
       await expect(service.update(clubId, updateClubDto)).rejects.toThrowError(
         new NotFoundException(`No information could be obtained from players or coaches associated with the club id ${clubId}.`)
       );
       expect(mockPlayerService.getPlayersByClubId).toHaveBeenCalledWith(clubId);
     });
-  
+
     test('should throw BadRequestException if the new budget is less than the total salaries', async () => {
       const clubId = 1;
       const updateClubDto = { budget: 100000 };
@@ -204,19 +208,19 @@ describe("clubService", () => {
       );
       expect(mockClubRepository.findOneBy).toHaveBeenCalledWith({ id: clubId });
     });
-  
+
     test('should handle database exceptions properly', async () => {
       const clubId = 1;
       const updateClubDto = { budget: 2000000 };
       const club = { id: clubId, name: 'FC Barcelona', budget: 1000000, remainingBudget: 1000000 };
       const players = [{ salary: 100000 }];
       const coaches = [{ salary: 50000 }];
-  
+
       mockClubRepository.findOneBy.mockResolvedValue(club);
       mockPlayerService.getPlayersByClubId.mockResolvedValue(players);
       mockCoachService.getCoachesByClubId.mockResolvedValue(coaches);
       mockClubRepository.update.mockRejectedValue(new Error('Database error'));
-  
+
       await expect(service.update(clubId, updateClubDto)).rejects.toThrowError('Unexpected error, check server logs');
     });
   });
