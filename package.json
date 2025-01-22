@@ -89,7 +89,10 @@
       "/src/database/seeds",
       "/src/coverage",
       "app.module.ts",
-      "main.ts"
+      "main.ts",
+      "/src/modules/club/club.module.ts",
+      "/src/modules/player/player.module.ts",
+      "/src/modules/coach/coach.module.ts"
     ]
   }
 }
