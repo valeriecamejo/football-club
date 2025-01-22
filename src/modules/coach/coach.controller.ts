@@ -14,7 +14,7 @@ export class CoachController {
   @Patch(':coachId/club')
   async assignCoachToClub(
     @Param('coachId', ParseIntPipe) coachId: number,
-    @Body() updateCoachDto: UpdateCoachDto) {
+    @Body() updateCoachDto: UpdateCoachDto): Promise<CreateCoachDto> {
     return this.coachService.assignCoachToClub(coachId, updateCoachDto);
   }
 
@@ -28,7 +28,7 @@ export class CoachController {
   @ApiOperation({ summary: 'Gell all coaches' })
   @ApiResponse({ status: 201, description: 'Coaches', type: [CreateCoachDto] })
   @Get()
-  findAll() {
+  findAll(): Promise<CreateCoachDto> {
     return this.coachService.findAll();
   }
 
@@ -36,7 +36,7 @@ export class CoachController {
   @ApiResponse({ status: 201, description: 'Coaches', type: [CreateCoachDto] })
   @Delete(':coachId/club')
   deleteCoachFromClub(
-    @Param('coachId', ParseIntPipe) coachId: number) {
+    @Param('coachId', ParseIntPipe) coachId: number): Promise<CreateCoachDto> {
     return this.coachService.deleteCoachFromClub(coachId);
   }
 }

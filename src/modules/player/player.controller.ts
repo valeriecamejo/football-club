@@ -13,21 +13,30 @@ export class PlayerController {
   @ApiOperation({ summary: 'Assign player to a club' })
   @ApiResponse({ status: 200, description: 'Players', type: [CreatePlayerDto] })
   @Patch(':playerId/club')
-  async assignPlayerToClub(@Param('playerId', ParseIntPipe) playerId: number, @Body() updatePlayerDto: UpdatePlayerDto) {
+  async assignPlayerToClub(
+    @Param('playerId', ParseIntPipe) playerId: number,
+    @Body() updatePlayerDto: UpdatePlayerDto): Promise<CreatePlayerDto> {
     return this.playerService.assignPlayerToClub(playerId, updatePlayerDto);
   }
 
   @ApiOperation({ summary: 'Create a player' })
   @ApiResponse({ status: 201, description: 'Players', type: [CreatePlayerDto] })
   @Post()
-  async createPlayer(@Body() createPlayerDto: CreatePlayerDto) {
+  async createPlayer(@Body() createPlayerDto: CreatePlayerDto): Promise<CreatePlayerDto> {
     return this.playerService.create(createPlayerDto);
+  }
+
+  @ApiOperation({ summary: 'Get all players' })
+  @ApiResponse({ status: 200, description: 'Players', type: [CreatePlayerDto] })
+  @Get()
+  findAll(): Promise<CreatePlayerDto[]> {
+    return this.playerService.findAll();
   }
 
   @ApiOperation({ summary: 'Get a player by Id' })
   @ApiResponse({ status: 200, description: 'Players', type: [CreatePlayerDto] })
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<CreatePlayerDto> {
     return this.playerService.findOne(id);
   }
 
@@ -38,7 +47,7 @@ export class PlayerController {
   async getPlayersByFilter(
     @Param('clubId', ParseIntPipe) clubId: number,
     @Query() query: GetPlayersQueryDto
-  ) {
+  ): Promise<CreatePlayerDto[]> {
     const { name, page, limit } = query;
     return this.playerService.getPlayersByFilter(clubId, name, page, limit);
   }
@@ -46,7 +55,7 @@ export class PlayerController {
   @ApiOperation({ summary: 'Delete a player from a club' })
   @ApiResponse({ status: 200, description: 'Players', type: [CreatePlayerDto] })
   @Delete(':playerId/club')
-  deleteCoachFromClub(@Param('playerId', ParseIntPipe) playerId: number) {
+  deleteCoachFromClub(@Param('playerId', ParseIntPipe) playerId: number): Promise<CreatePlayerDto> {
     return this.playerService.deletePlayerFromClub(playerId);
   }
 }

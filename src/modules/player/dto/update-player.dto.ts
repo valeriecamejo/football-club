@@ -7,6 +7,6 @@ export class UpdatePlayerDto {
     salary: number;
 
     @IsNotEmpty({ message: 'club_id is required' })
-    @IsNumber({}, { message: 'the club_id must be an existing club',  })
+    @IsNumber({}, { message: 'the club_id should be a number' })
     club_id: number;
 }

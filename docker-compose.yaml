@@ -1,6 +1,6 @@
 version: '3'
 
-services: 
+services:
   db:
     image: postgres:14.3
     restart: always
@@ -9,6 +9,27 @@ services:
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
     container_name: footballClub
     volumes:
       - ./postgres:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      RUN_SEEDS: ${RUN_SEEDS}
+    env_file:
+      - .env
+    depends_on:
+      - db

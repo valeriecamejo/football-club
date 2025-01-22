@@ -5,8 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Coach } from './entities/coach.entity';
 import { Repository } from 'typeorm';
 import { Club } from '../club/entities/club.entity';
-import { EmailService } from 'src/common/email/email.service';
-import { handleDBExceptions } from 'src/common/utils/db-exception.util';
+import { EmailService } from '../../common/email/email.service';
+import { handleDBExceptions } from '../../common/utils/db-exception.util';
 
 @Injectable()
 export class CoachService {
@@ -53,7 +53,7 @@ export class CoachService {
     }
 
     club.remainingBudget -= salary;
-  
+
     const coachToSave = { salary, club_id, club_name: club.name };
 
     await this.clubRepository.update(club_id, { remainingBudget: club.remainingBudget });
@@ -62,6 +62,7 @@ export class CoachService {
 
     coachDB.salary = salary;
     coachDB.club_id = club_id;
+    coachDB.club_name = club.name;
 
     return coachDB;
   }
@@ -69,8 +70,8 @@ export class CoachService {
   async deleteCoachFromClub(coachId: number) {
     const coachDB = await this.coachRepository.findOne({ where: { id: coachId } });
 
-    const clubId = coachDB.club_id;
     if (!coachDB) throw new NotFoundException(`Coach with id ${coachId} not found`);
+    const clubId = coachDB.club_id;
     if (clubId == null) throw new BadRequestException(`Coach with id: ${coachId} is not associated with a club`);
 
     const club = await this.clubRepository.findOne({ where: { id: clubId } });
@@ -80,7 +81,9 @@ export class CoachService {
     await this.clubRepository.update(clubId, { remainingBudget });
     await this.coachRepository.update(coachId, { club_id: null, club_name: null });
     await this.emailService.sendEmail(coachDB.email, 'deleted', coachDB.name, club.name);
+
     delete coachDB.club_id;
+    delete coachDB.club_name;
 
     return coachDB;
   }
@@ -93,7 +96,7 @@ export class CoachService {
 
       return coaches;
     } catch (error) {
-
+      throw new Error('Error searching coaches by clubId');
     }
   }
 
