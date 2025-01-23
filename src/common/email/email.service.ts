@@ -39,7 +39,7 @@ export class EmailService {
 
       return info;
     } catch (error) {
-      throw new Error('Error sending email');
+      throw new Error('Error sending email. Verify your email configuration in .env file.');
     }
   }
 }
