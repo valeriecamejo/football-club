@@ -21,6 +21,7 @@ export class CoachService {
     private readonly emailService: EmailService
   ) { }
 
+  // Create a new coach
   async create(createCoachDto: CreateCoachDto) {
     try {
       const coach = this.coachRepository.create(createCoachDto);
@@ -33,6 +34,7 @@ export class CoachService {
     }
   }
 
+  // Assign a coach to a club
   async assignCoachToClub(coachId: number, updateCoachDto: UpdateCoachDto): Promise<Coach> {
     const { club_id, salary } = updateCoachDto;
 
@@ -67,6 +69,7 @@ export class CoachService {
     return coachDB;
   }
 
+  // Delete a coach from a club
   async deleteCoachFromClub(coachId: number) {
     const coachDB = await this.coachRepository.findOne({ where: { id: coachId } });
 
@@ -88,6 +91,7 @@ export class CoachService {
     return coachDB;
   }
 
+  // Get coaches by club id
   async getCoachesByClubId(club_id: number): Promise<Coach[]> {
     try {
       const coaches = await this.coachRepository.find({

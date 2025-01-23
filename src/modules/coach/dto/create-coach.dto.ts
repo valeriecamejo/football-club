@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, MaxLength, Min } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, Matches, MaxLength, Min } from 'class-validator';
 
 export class CreateCoachDto {
   @ApiProperty({
@@ -7,6 +7,10 @@ export class CreateCoachDto {
     example: 'Mario Benetto',
   })
   @IsNotEmpty()
+  @Matches(/^(?!\s*$).+/, { message: 'The club name cannot be just spaces' })
+  @Matches(/^[A-Za-z\s]+$/, {
+    message: 'Name must contain only letters and spaces',
+  })
   name: string;
 
   @ApiProperty({

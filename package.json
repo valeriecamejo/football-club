@@ -18,7 +18,6 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "run-seeds": "RUN_SEEDS=true ts-node ./src/database/seeds/seed.module.ts",
     "start:docker": "docker-compose up --build"
   },
   "dependencies": {

@@ -9,6 +9,9 @@ export class CreateClubDto {
     @IsString()
     @IsNotEmpty({ message: 'Club name cannot be empty' })
     @Matches(/^(?!\s*$).+/, { message: 'The club name cannot be just spaces' })
+    @Matches(/^[A-Za-z\s]+$/, {
+        message: 'Name must contain only letters and spaces',
+      })
     name: string;
 
     @ApiProperty({

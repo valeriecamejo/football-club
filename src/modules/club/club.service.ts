@@ -20,6 +20,7 @@ export class ClubService {
     private readonly coachService: CoachService,
   ) { }
 
+  // Create a new club
   async create(createClubDto: CreateClubDto) {
     try {
       const club = this.clubRepository.create(createClubDto);
@@ -30,7 +31,7 @@ export class ClubService {
       handleDBExceptions(error, this.logger);
     }
   }
-
+  // Find all clubs
   findAll() {
     try {
       return this.clubRepository.find({});
@@ -40,6 +41,7 @@ export class ClubService {
     
   }
 
+  // Find one club by id
   async findOne(id: number) {
     try {
       const club = await this.clubRepository.findOneBy({ id });
@@ -53,14 +55,17 @@ export class ClubService {
     }
   }
 
+  // Update a club's budget by id
   async update(id: number, updateClubDto: UpdateClubDto) {
     const { budget } = updateClubDto;
 
     let club;
     let players;
     let coaches;
+    
     try {
       club = await this.findOne(id);
+      if(budget === club.budget) return club;
 
       players = await this.playerService.getPlayersByClubId(id);
       coaches = await this.coachService.getCoachesByClubId(id);

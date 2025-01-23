@@ -21,6 +21,7 @@ export class PlayerService {
     private readonly emailService: EmailService
   ) { }
 
+  // Create a new player
   async create(createPlayerDto: CreatePlayerDto) {
     try {
       const player = this.playerRepository.create(createPlayerDto);
@@ -33,6 +34,7 @@ export class PlayerService {
     }
   }
 
+  // Assign a player to a club
   async assignPlayerToClub(playerId: number, createPlayerDto: UpdatePlayerDto): Promise<Player> {
     const { club_id, salary } = createPlayerDto;
 
@@ -67,11 +69,13 @@ export class PlayerService {
     return playerDB;
   }
 
+  // Find all players
   async findAll() {
     const players = await this.playerRepository.find({});
     return this.cleanPlayersResponse(players);
   }
 
+  // Find one player by id
   async findOne(id: number) {
     try {
       const player = await this.playerRepository.findOneBy({ id });
@@ -85,6 +89,7 @@ export class PlayerService {
     }
   }
 
+  // Get all players by club id
   async getPlayersByClubId(club_id: number): Promise<Player[]> {
     try {
       const players = await this.playerRepository.find({
@@ -97,6 +102,7 @@ export class PlayerService {
     }
   }
 
+  // Get players filtered by clubId and name
   async getPlayersByFilter(club_id: number, name: string, page: number, limit: number): Promise<Player[]> {
     const skip = (page - 1) * limit;
 
@@ -112,6 +118,7 @@ export class PlayerService {
     return players;
   }
 
+  // Delete a player from a club
   async deletePlayerFromClub(playerId: number) {
     const playerDB = await this.playerRepository.findOne({ where: { id: playerId } });
 
@@ -133,6 +140,7 @@ export class PlayerService {
     return playerDB;
   }
 
+  // Clean player response
   async cleanPlayersResponse(players) {
     const filteredPlayers = players.map(player => {
       const filteredPlayer = {};
