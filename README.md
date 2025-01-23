@@ -19,17 +19,9 @@ Clona este repositorio en tu máquina local:
 git clone <url-del-repositorio>
 ````
 
-### 2. Instalar dependencias
+### 2. Configurar el archivo de variables de entorno
 
-Instala las dependencias necesarias para ejecutar el proyecto:
-
-```bash
-npm install
-````
-
-### 3. Configurar el archivo de variables de entorno
-
-Clona el archivo .env.template y renómbralo a .env:
+Clona el archivo .env.template y renómbralo a .env con el siguiente comando:
 
 ```bash
 cp .env.template .env
@@ -39,43 +31,44 @@ Luego, abre el archivo .env y ajusta las siguientes variables de entorno según 
 
 ```bash
 DB_PASSWORD=your_password_here
-DB_NAME=footballClubDb
+DB_NAME=your_database_name_here
+
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=generated_app_password
+
+RUN_SEEDS=true --> Cambiar a false luego de levantar el proyecto por primera vez. Esta variable permita cargar los seeds la primera vez.
 # Otras variables necesarias para la configuración del proyecto
 ```
 
-### 4. Levantar la base de datos con Docker
+### 3. Levantar el proyecto
 
-Asegúrate de tener Docker instalado en tu máquina. Luego, para levantar el contenedor de la base de datos Postgres, ejecuta:
+- Si es la primera vez que ejecutas el proyecto:
 
-```bash
-docker-compose up -d
-```
-
-Este comando descargará la imagen de Postgres y levantará el contenedor en segundo plano.
-
-### 5. Levantar el proyecto
-
-Si es la primera vez que ejecutas el proyecto:
-
-Deberás correr los seeds para poblar la base de datos con datos de ejemplo y luego levantar el proyecto con el siguiente comando:
+Confirma que la variable RUN_SEEDS esté en true en el archivo de variables de entorno .env:
 
 ```bash
-RUN_SEEDS=true npm run start:dev
+RUN_SEEDS=true
 ```
 
 RUN_SEEDS=true indica que se ejecutarán los scripts de seeds para poblar la base de datos.
 
-Si ya tienes la base de datos poblada:
+- Si ya tienes la base de datos poblada:
 
-Si ya has ejecutado el proyecto previamente y tienes los datos de la base de datos, solo ejecuta el siguiente comando para iniciar el servidor:
+Si ya has ejecutado el proyecto previamente y tienes los datos de la base de datos, cambia la variable a false:
 
 ```bash
-npm run start:dev
+RUN_SEEDS=false
+```
+
+Ahora ejecuta el comando para levantar el proyecto con docker:
+
+```bash
+docker-compose up --build
 ```
 
 Este comando levantará el proyecto en modo de desarrollo.
 
-### 6. Acceder a Swagger
+### 4. Acceder a Swagger
 
 Una vez que el proyecto esté levantado, puedes acceder a la documentación de la API a través de Swagger:
 
@@ -88,13 +81,19 @@ Swagger proporcionará una interfaz gráfica donde podrás probar todas las ruta
 ![alt text](image.png)
 
 
-### Comandos útiles
+### 5. Ejecutar pruebas unitarias
 
-- Levantar la base de datos: docker-compose up -d
-- Levantar el servidor en modo desarrollo: npm run start:dev
-- Ejecutar tests: npm test
-- Verificar cobertura de tests: npm run test:cov
+Instalar las dependencias del proyecto en local:
+
+```bash
+npm install
+```
+
+Ejecutar los test unitarios:
+
+```bash
+npm run test
+```
 
 Autor
-
 Val ♥️
